@@ -49,6 +49,10 @@ module Redd
       # @return [Access] The access object to make API requests with.
       attr_accessor :access
 
+      # @!attribute [r] proxy
+      # @return [string] The proxy server to use for the connection.
+      attr_accessor :proxy
+
       # Create a Client.
       #
       # @param [Hash] options The options to create the client with.
@@ -67,6 +71,7 @@ module Redd
         @auth_endpoint = options[:auth_endpoint] || "https://www.reddit.com/"
         @api_endpoint = options[:api_endpoint] || "https://oauth.reddit.com/"
         @access = Access.new(expires_at: Time.at(0))
+        @proxy = options[:proxy] || nil
       end
 
       # @!method get(path, params = {})
@@ -163,7 +168,8 @@ module Redd
         @connection ||= Faraday.new(
           @api_endpoint,
           headers: default_headers,
-          builder: middleware
+          builder: middleware,
+          proxy:  @proxy
         )
       end
 
@@ -180,7 +186,8 @@ module Redd
         @auth_connection ||= Faraday.new(
           @auth_endpoint,
           headers: auth_headers,
-          builder: middleware
+          builder: middleware,
+          proxy: @proxy
         )
       end
     end
